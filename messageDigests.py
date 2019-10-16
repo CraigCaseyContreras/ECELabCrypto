@@ -9,7 +9,8 @@ def digestMD5(user_input, byte_user):
 	hasher.update(byte_user)
 	digest = hasher.finalize()
 	print("Output of original data: ", user_input)
-	print("Output of message digest: ", digest)
+	return digest
+
 
 def digestSHA1(user_input, byte_user):
 	
@@ -19,7 +20,7 @@ def digestSHA1(user_input, byte_user):
 	hasher.update(byte_user)
 	digest = hasher.finalize()
 	print("Output of original data: ", user_input)
-	print("Output of message digest: ", digest)
+	return digest
 	
 def digestSHA256(user_input, byte_user):
 	
@@ -29,7 +30,8 @@ def digestSHA256(user_input, byte_user):
 	hasher.update(byte_user)
 	digest = hasher.finalize()
 	print("Output of original data: ", user_input)
-	print("Output of message digest: ", digest)
+	return digest
+
 	
 def digestSHA384(user_input, byte_user):
 	
@@ -39,7 +41,8 @@ def digestSHA384(user_input, byte_user):
 	hasher.update(byte_user)
 	digest = hasher.finalize()
 	print("Output of original data: ", user_input)
-	print("Output of message digest: ", digest)
+	return digest
+
 
 def digestSHA512(user_input, byte_user):
 	
@@ -49,7 +52,8 @@ def digestSHA512(user_input, byte_user):
 	hasher.update(byte_user)
 	digest = hasher.finalize()
 	print("Output of original data: ", user_input)
-	print("Output of message digest: ", digest)
+	return digest
+
 
 def main():
 	#MD5, SHA1, SHA256, SHA384, SHA512 
@@ -65,15 +69,20 @@ def main():
 	choose_digest = input("Please choose a digest from the list above (enter number): ")
 	
 	if choose_digest == '1':
-		digestMD5(user_input, byte_user)
+		output = digestMD5(user_input, byte_user)
+		print("Output of message digest: ", output)
 	elif choose_digest == '2':
-		digestSHA1(user_input, byte_user)
+		output = digestSHA1(user_input, byte_user)
+		print("Output of message digest: ", output)
 	elif choose_digest == '3':
-		digestSHA256(user_input, byte_user)
+		output = digestSHA256(user_input, byte_user)
+		print("Output of message digest: ", output)
 	elif choose_digest == '4':
-		digestSHA384(user_input, byte_user)
+		output = digestSHA384(user_input, byte_user)
+		print("Output of message digest: ", output)
 	elif choose_digest == '5':
-		digestSHA512(user_input, byte_user)
+		output = digestSHA512(user_input, byte_user)
+		print("Output of message digest: ", output)
 	else:
 		print("Sorry! Number is invalid! Please run program again and choose a number from the list.")
 	

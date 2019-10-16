@@ -28,6 +28,7 @@ file1 = open(fname,"wb")
 file1.write(pem_kr)
 file1.close()
 
+
 #How do I know if this is correct? -Did the isinstance things
 
 with open(fname,'rb') as file:
@@ -37,6 +38,7 @@ with open(fname,'rb') as file:
         backend=backend)
     if isinstance(private_key, rsa.RSAPrivateKey):
         print("Is a private key - can reload")
+
 
 #Writing to ku.pem
 file2 = open(fname2,"wb")
