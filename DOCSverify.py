@@ -28,12 +28,9 @@ pad = padding.PSS(mgf=padding.MGF1(hashes.SHA256()),
 
 #Verify the signature
 try:
-    public_key.verify(signature=signa,
-                  data=digest,
-                  padding=pad,
-                  algorithm=utils.Prehashed(myhash))
-except InvalidSignature as err:
-    print(Fore.RED + '\nThe signature does not match!  ERROR - {!r}:'.format(err))
+    public_key.verify(signature=signa,data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
+except:
+    print("Key is invalid!")
 else:
-    print("The signature is valid!")
+    print("Key is valid!")
 

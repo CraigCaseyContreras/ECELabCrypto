@@ -5,6 +5,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import utils
 from encodings.base64_codec import base64_encode
+from base64 import b64encode, b64decode
  
 #For this, I assume that the user picked SHA256 hash function
 #Remember the password is 'hello'
@@ -24,15 +25,6 @@ digest = hasher.finalize()
 password = 'hello'
 private_key = serialization.load_pem_private_key(open('kr.pem', 'rb').read(),password.encode(),default_backend())  
 
-
-#file1 = open("kr.pem","rb")
-#with open("kr.pem",'rb') as file:
-    #private_key = serialization.load_pem_private_key(
-        #data=file.read(), 
-        #password=password.encode(),
-        #backend=backend)
-#file1.close()
-
 pad = padding.PSS(mgf=padding.MGF1(hashes.SHA256()),  
                   salt_length=padding.PSS.MAX_LENGTH)
 
@@ -45,3 +37,5 @@ sig = private_key.sign(data=digest,
 sig_file = 'signature' + '.sig'
 with open(sig_file, 'wb') as signature_file:
     signature_file.write(sig)
+    
+    
