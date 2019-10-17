@@ -22,22 +22,26 @@ digest = hasher.finalize()
 
 #Gets the private key
 password = 'hello'
-file1 = open("kr.pem","rb")
-with open("kr.pem",'rb') as file:
-    private_key = serialization.load_pem_private_key(
-        data=file.read(), 
-        password=password.encode(),
-        backend=backend)
-file1.close()
+private_key = serialization.load_pem_private_key(open('kr.pem', 'rb').read(),password.encode(),default_backend())  
+
+
+#file1 = open("kr.pem","rb")
+#with open("kr.pem",'rb') as file:
+    #private_key = serialization.load_pem_private_key(
+        #data=file.read(), 
+        #password=password.encode(),
+        #backend=backend)
+#file1.close()
 
 pad = padding.PSS(mgf=padding.MGF1(hashes.SHA256()),  
                   salt_length=padding.PSS.MAX_LENGTH)
 
+#Signs the padded data
 sig = private_key.sign(data=digest,
                        padding=pad,
                        algorithm=utils.Prehashed(myhash))
 
 #Saves it to a signature with .sig extension
-file1 = open("signature.sig","wb")
-file1.write(sig)
-file1.close()
+sig_file = 'signature' + '.sig'
+with open(sig_file, 'wb') as signature_file:
+    signature_file.write(sig)

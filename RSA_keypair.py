@@ -24,30 +24,32 @@ path = os.path.abspath(fname)
 path2 = os.path.abspath(fname2)
 
 #Writing to kr.pem
-file1 = open(fname,"wb")
-file1.write(pem_kr)
-file1.close()
+#file1 = open(fname,"wb")
+#file1.write(pem_kr)
+#file1.close()
 
 
 #How do I know if this is correct? -Did the isinstance things
 
-with open(fname,'rb') as file:
-    private_key = serialization.load_pem_private_key(
-        data=file.read(), 
-        password=password.encode(),
-        backend=backend)
+with open(fname,'wb') as file:
+    file.write(pem_kr)
+    #private_key = serialization.load_pem_private_key(
+        #data=file.read(), 
+        #password=password.encode(),
+        #backend=backend)
     if isinstance(private_key, rsa.RSAPrivateKey):
         print("Is a private key - can reload")
 
 
 #Writing to ku.pem
-file2 = open(fname2,"wb")
-file2.write(pem_ku)
-file2.close()
+#file2 = open(fname2,"wb")
+#file2.write(pem_ku)
+#file2.close()
 
-with open(fname2,'rb') as file:
-    public_key = serialization.load_pem_public_key(
-        data=file.read(), 
-        backend=backend)
+with open(fname2,'wb') as file:
+    file.write(pem_ku)
+    #public_key = serialization.load_pem_public_key(
+        #data=file.read(), 
+        #backend=backend)
     if isinstance(public_key, rsa.RSAPublicKey):
         print("Is a public key - can reload")
