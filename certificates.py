@@ -2,6 +2,8 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import padding
+from datetime import datetime, timedelta
 
 #Gets the private key
 password = 'hello'
@@ -24,3 +26,28 @@ subject = issuer = x509.Name([x509.NameAttribute(NameOID.COUNTRY_NAME, u"US"),
 
 #Create a Certificate builder object
 builder = x509.CertificateBuilder()
+
+#Set the subject and issuer
+builder = builder.subject_name(subject)
+builder = builder.issuer_name(issuer)
+
+#Set the date - THINK THERE IS SOMETHING WRONG WITH THE CODE HERE???
+builder = builder.not_valid_before(datetime.datetime.today() - datetime.timedelta(days=1))
+builder = builder.not_valid_after(datetime.datetime(2018, 8, 2))
+
+#Set a random serial number
+builder = builder.serial_number(x509.random_serial_number())
+
+#Add the public key
+builder = builder.public_key(public_key)
+
+#Add the basic extensions
+builder = builder.add_extension(x509.BasicConstraints(ca=False, path_length=None), critical=True,)
+
+#Sign the certificate
+certificate = builder.sign(private_key=private_key, algorithm=hashes.SHA256(),backend=default_backend())
+
+#Save the certificate
+cert_name = 'user1_cert.pem'
+with open(cert_name, 'wb') as file:
+	file.write(certificate.public_bytes(serialization.Encoding.PEM))
