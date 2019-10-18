@@ -37,5 +37,7 @@ sig = private_key.sign(data=digest,
 sig_file = 'signature' + '.sig'
 with open(sig_file, 'wb') as signature_file:
     signature_file.write(sig)
+
+print("Congrats! The signature has been written!")
     
     
