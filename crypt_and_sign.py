@@ -79,14 +79,7 @@ def main():
 	myhash = hashes.SHA256()
 	
 	with open('fileToSign.txt') as m:
-		text = m.read().encode() #Reads what is encrypted and converts the hex to bytes. So the entire thing that is inside fileToSign is actually signed
-	
-	#message_input = text #It is the encrypted message - the encrypted gettysburg in bytes
-	#myhash = hashes.SHA256()
-	#backend = default_backend()
-	#hasher = hashes.Hash(myhash, backend)
-	#hasher.update(message_input) # message_input MUST be in bytes!!!
-	#digest = hasher.finalize()
+		text = textt #OR m.read().encode() #Reads what is encrypted and converts the hex to bytes. So the entire thing that is inside fileToSign is actually signed
 	
 	digest = digestSHA256(text)
 
@@ -129,7 +122,7 @@ def main():
 	with open('decryptedSignedFile.txt', 'w') as file:
 		file.write(decrypted)
 	
-	print("Congrats! Your decrypted signed file is written onto the decryptedSignedFile.txt file!")
+	print("Congrats! Your decrypted file is written onto the decryptedSignedFile.txt file!")
 	
 	
 	
