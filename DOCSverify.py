@@ -17,16 +17,21 @@ backend = default_backend()
 hasher = hashes.Hash(myhash, backend)
 hasher.update(message_input)
 digest = hasher.finalize()
+print("----------LOADED THE HASHED DATA----------")
+
 
 #Loads the signature - Works it's fine 
 with open('signature.sig', 'rb') as file:
     signa = file.read()
+
+print("----------LOADED THE SIGNATURE----------")
 
 #Use to unpad
 pad = padding.PSS(mgf=padding.MGF1(hashes.SHA256()),  
                   salt_length=padding.PSS.MAX_LENGTH)
 
 #Verify the signature
+print("----------VERIFYING THE SIGNATURE----------")
 try:
     public_key.verify(signature=signa,data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
 except:

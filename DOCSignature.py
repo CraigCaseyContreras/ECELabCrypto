@@ -20,18 +20,23 @@ backend = default_backend()
 hasher = hashes.Hash(myhash, backend)
 hasher.update(message_input)
 digest = hasher.finalize()
+print("----------LOADED THE HASHED DATA----------")
 
 #Gets the private key
 password = 'hello'
 private_key = serialization.load_pem_private_key(open('kr.pem', 'rb').read(),password.encode(),default_backend())  
+print("----------GOT PRIVATE KEY----------")
 
 pad = padding.PSS(mgf=padding.MGF1(hashes.SHA256()),  
                   salt_length=padding.PSS.MAX_LENGTH)
+print("----------PADDED DATA----------")
+
 
 #Signs the padded data
 sig = private_key.sign(data=digest,
                        padding=pad,
                        algorithm=utils.Prehashed(myhash))
+print("----------SIGNED PADDED DATA----------")
 
 #Saves it to a signature with .sig extension
 sig_file = 'signature' + '.sig'
