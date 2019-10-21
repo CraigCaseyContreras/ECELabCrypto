@@ -65,6 +65,7 @@ def main():
 	option = input("Type 'e' to encrypt: \t")
 	#Encrypts the gettysburg
 	if option == 'e':
+		print("----------ENCRYPTING----------")
 		textt = encrypt(contents_enc)
 		file3 = open(fname2, "w")
 		file3.write(textt.hex()) #TRING TO WRITE AS BYTES!! REMEMBER IT IS APPARENTLY SUPPOSED TO BE IN HEX!!! change it nack when done
@@ -111,6 +112,7 @@ def main():
 	
 	#Verify the signature
 	try:
+		print("----------VALIDATING KEY----------")
 		public_key.verify(signature=signa,data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
 	except:
 		print("Key is invalid!")
@@ -118,7 +120,9 @@ def main():
 		print("Key is valid!")
 
 	#Now all that is left is to decrypt the message - remember that 'textt' has the contents in bytes, not hex
+	
 	decrypted = decrypt(textt)
+	print("----------DECRYPTING----------")
 	with open('decryptedSignedFile.txt', 'w') as file:
 		file.write(decrypted)
 	
