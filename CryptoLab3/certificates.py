@@ -32,7 +32,7 @@ print("----------CERTIFICATE BUILDER OBJECT CREATED----------")
 builder = builder.subject_name(subject)
 builder = builder.issuer_name(issuer)
 
-#Set the date - THINK THERE IS SOMETHING WRONG WITH THE CODE HERE???
+#Set the date
 builder = builder.not_valid_before(datetime.datetime.utcnow())
 builder = builder.not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=10)) #Certificte is valid for 10 days
 
