@@ -32,7 +32,7 @@ builder = builder.subject_name(subject)
 builder = builder.issuer_name(issuer)
 
 #Set the date - THINK THERE IS SOMETHING WRONG WITH THE CODE HERE???
-builder = builder.not_valid_before(datetime.datetime.today() - datetime.timedelta(days=1))
+builder = builder.not_valid_before(datetime.datetime.today() - one_day)
 builder = builder.not_valid_after(datetime.datetime(2018, 8, 2))
 
 #Set a random serial number

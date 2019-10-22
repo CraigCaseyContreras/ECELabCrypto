@@ -45,6 +45,7 @@ with open(sig_file, 'wb') as signature_file:
 print("\nCongrats! The signature has been written!\n")
     
 #-------------------Use the verification code from CryptoLab2 Task 3.2 to verify the signature-------------------
+
 print("\t----------VERIFYING----------TASK 2.2\n")
 #Load the certificate for User 1
 with open('user1_cert.pem', 'rb') as file:
@@ -68,6 +69,32 @@ print("----------VERIFYING THE SIGNATURE----------")
 try:
 	public_key.verify(signature=signa,data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
 except:
+	print("\nKey is invalid!")
+else:
+	print("\nKey is valid!\n")
+	
+#----------------Task 2.3: Verifying a certificate-----------------------------
+
+print("\t----------VERIFYING CERTIFICATE----------TASK 2.3\n")
+#Load the signature - done at top
+
+#with open('user1_cert.pem', 'rb') as file:
+#	certificate = x509.load_pem_x509_certificate(data=file.read(), backend=backend)
+
+#Get the public key from certificate. Already done. Saved in public__key
+
+#Get the signature
+signat = certificate.signature
+
+#Get the data to be used to check the signature
+datta = certificate.tbs_certificate_bytes
+
+#Data already loaded as digest  //  Padding already set as pad
+
+#Verify the signature.. So I am guessing I use 'signat', 'data'?? So then what is the point of hashing?
+try:
+	public_key.verify(signat,datta,pad,algorithm=utils.Prehashed(myhash))
+except:
 	print("Key is invalid!")
 else:
-	print("\nKey is valid!")
+	print("Key is valid!")
