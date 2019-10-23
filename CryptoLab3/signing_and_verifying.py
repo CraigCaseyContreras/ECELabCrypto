@@ -89,11 +89,16 @@ signat = certificate.signature
 #Get the data to be used to check the signature
 datta = certificate.tbs_certificate_bytes
 
-#Data already loaded as digest  //  Padding already set as pad
+#Hash the datta
+myhash_datta = hashes.SHA256()
+backend_datta = default_backend()
+hasher_datta = hashes.Hash(myhash_datta, backend_datta)
+hasher_datta.update(datta)
+datta_digest = hasher_datta.finalize()
 
 #Verify the signature.. So I am guessing I use 'signat', 'data'?? So then what is the point of hashing?
 try:
-	public_key.verify(signat,datta,pad,algorithm=utils.Prehashed(myhash))
+	public_key.verify(signat,datta_digest,pad,algorithm=utils.Prehashed(myhash))
 except:
 	print("Key is invalid!")
 else:
