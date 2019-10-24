@@ -65,6 +65,7 @@ if user2 == 'yes':
 	password = 'orianthi'
     
 	private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048, backend=default_backend())
+	
 
     #Generate the public key
 	public_key = private_key.public_key() 
@@ -74,7 +75,6 @@ if user2 == 'yes':
                                 format=serialization.PrivateFormat.PKCS8, 
                                 encryption_algorithm=serialization.BestAvailableEncryption(password.encode()))
 	pem_ku = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
-    
     #writes to pem_kr2
 	with open('kr2.pem','wb') as file:
 		file.write(pem_kr)
@@ -110,7 +110,7 @@ if user2 == 'yes':
 
     #Set the date - THINK THERE IS SOMETHING WRONG WITH THE CODE HERE???
 	builder = builder.not_valid_before(datetime.datetime.utcnow())
-	builder = builder.not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=10)) #Certificte is valid for 10 days
+	builder = builder.not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=100)) #Certificte is valid for 10 days
 
     #Set a random serial number
 	builder = builder.serial_number(x509.random_serial_number())

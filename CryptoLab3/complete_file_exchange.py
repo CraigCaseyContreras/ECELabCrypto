@@ -1,6 +1,7 @@
 from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.backends import default_backend 
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization 
 from cryptography.hazmat.primitives import hashes
@@ -11,6 +12,7 @@ from encodings.base64_codec import base64_encode
 from base64 import b64encode, b64decode
 import random
 import os
+
 # from cryptography.hazmat.primitives import padding - might need it
 
 def generate_certificates():
@@ -24,11 +26,6 @@ def generate_certificates():
 		certificate_k2 = x509.load_pem_x509_certificate(data=file.read(), backend=backend)
 		print('- K2 CERTIFICATE LOADED -')
 	return (certificate_k1, certificate_k2)
-
-def gen_random_key():
-	# Just generates a random key of up untill length 16.
-	rnd = os.urandom(16)
-	return rnd
 
 def generate_keys():
 	print('--------LOADING KEYS FOR K1 AND K2--------')
@@ -69,24 +66,10 @@ def main():
 	#Makes keystore k1.pem
 	with open('k1.pem', 'wb') as file:
 		file.writelines([key_k1, cert1.public_bytes(serialization.Encoding.PEM), cert2.public_bytes(serialization.Encoding.PEM)])
-	
+
 	#Makes keystore k2.pem
 	with open('k2.pem', 'wb') as file:
 		file.writelines([key_k2, cert2.public_bytes(serialization.Encoding.PEM), cert1.public_bytes(serialization.Encoding.PEM)])
-		
-	#Create an encrypted file with a randomly generated secret key
-	#So here, I would just use the encryption function and create a random file to encrypt. I will use a generate key function 
-	random_key = gen_random_key()
-	
-	#Now to encrypt a file with the random generated key. The file to encrypt is "file_exchange_file_to_encrypt.txt"
-	
-	option = input('\nDo you want to decrypt the specified file: \'file_exchange_file_to_encrypt.txt\'? Type \'yes\' or \'no\' \t')
-	
-	if option == 'yes':
-		print('--------GENERATING RANDOM KEY--------')
-		print('- RANDOM KEY GENERATED -')
-		
-		#SYMMETRIC ENCRPTION - AES128
 
 if __name__ == "__main__":
 	main()
