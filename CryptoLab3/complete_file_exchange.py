@@ -6,8 +6,12 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import utils
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from encodings.base64_codec import base64_encode
 from base64 import b64encode, b64decode
+import random
+import os
+# from cryptography.hazmat.primitives import padding - might need it
 
 def generate_certificates():
 	print('\n--------LOADING CERTIFICATES FOR K1 AND K2--------')
@@ -21,6 +25,10 @@ def generate_certificates():
 		print('- K2 CERTIFICATE LOADED -')
 	return (certificate_k1, certificate_k2)
 
+def gen_random_key():
+	# Just generates a random key of up untill length 16.
+	rnd = os.urandom(16)
+	return rnd
 
 def generate_keys():
 	print('--------LOADING KEYS FOR K1 AND K2--------')
@@ -51,6 +59,34 @@ def main():
 	key1, key2 = generate_keys()
 	cert1, cert2 = generate_certificates()
 	
+	key_k1 = key1.private_bytes(encoding = serialization.Encoding.PEM,
+							 format=serialization.PrivateFormat.TraditionalOpenSSL,
+							 encryption_algorithm=serialization.NoEncryption())
+	
+	key_k2 = key2.private_bytes(encoding = serialization.Encoding.PEM,
+							format=serialization.PrivateFormat.TraditionalOpenSSL,
+							encryption_algorithm=serialization.NoEncryption())
+	#Makes keystore k1.pem
+	with open('k1.pem', 'wb') as file:
+		file.writelines([key_k1, cert1.public_bytes(serialization.Encoding.PEM), cert2.public_bytes(serialization.Encoding.PEM)])
+	
+	#Makes keystore k2.pem
+	with open('k2.pem', 'wb') as file:
+		file.writelines([key_k2, cert2.public_bytes(serialization.Encoding.PEM), cert1.public_bytes(serialization.Encoding.PEM)])
+		
+	#Create an encrypted file with a randomly generated secret key
+	#So here, I would just use the encryption function and create a random file to encrypt. I will use a generate key function 
+	random_key = gen_random_key()
+	
+	#Now to encrypt a file with the random generated key. The file to encrypt is "file_exchange_file_to_encrypt.txt"
+	
+	option = input('\nDo you want to decrypt the specified file: \'file_exchange_file_to_encrypt.txt\'? Type \'yes\' or \'no\' \t')
+	
+	if option == 'yes':
+		print('--------GENERATING RANDOM KEY--------')
+		print('- RANDOM KEY GENERATED -')
+		
+		#SYMMETRIC ENCRPTION - AES128
 
 if __name__ == "__main__":
 	main()

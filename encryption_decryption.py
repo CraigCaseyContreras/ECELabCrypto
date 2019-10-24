@@ -38,6 +38,7 @@ padder = padding.PKCS7(128).padder()
 unpadder = padding.PKCS7(128).unpadder()
 
 def encrypt(contents):
+    #Key (length: 16) and ciphertext are in bytes but are written to the file in hex
 	kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=16,salt=salt,iterations=100000,backend=backend)
 	passwd = b'orianthi'
 	key = kdf.derive(passwd)
