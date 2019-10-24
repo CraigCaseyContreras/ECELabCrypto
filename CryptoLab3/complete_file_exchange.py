@@ -51,20 +51,6 @@ def main():
 	key1, key2 = generate_keys()
 	cert1, cert2 = generate_certificates()
 	
-	key_k1 = key1.private_bytes(encoding = serialization.Encoding.PEM,
-							 format=serialization.PrivateFormat.TraditionalOpenSSL,
-							 encryption_algorithm=serialization.NoEncryption())
-	
-	key_k2 = key2.private_bytes(encoding = serialization.Encoding.PEM,
-							format=serialization.PrivateFormat.TraditionalOpenSSL,
-							encryption_algorithm=serialization.NoEncryption())
-	#Makes keystore k1.pem
-	with open('k1.pem', 'wb') as file:
-		file.writelines([key_k1, cert1.public_bytes(serialization.Encoding.PEM), cert2.public_bytes(serialization.Encoding.PEM)])
-	
-	#Makes keystore k2.pem
-	with open('k2.pem', 'wb') as file:
-		file.writelines([key_k2, cert2.public_bytes(serialization.Encoding.PEM), cert1.public_bytes(serialization.Encoding.PEM)])
 
 if __name__ == "__main__":
 	main()
