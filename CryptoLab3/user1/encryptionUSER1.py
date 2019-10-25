@@ -27,11 +27,27 @@ def encrypt_OFB(data):
 	return random_key + ct #Random key is saved to the front of the ciphertext
 
 def gen_random_key():
-	# Just generates a random key of up untill length 16.
-	return os.urandom(16)
+	# Just generates a random secret key using previous methods.
+	
+	password = b'orianthi'
+	salt = os.urandom(16)
+	kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=16,salt=salt,iterations=100000,backend=default_backend())
+	key = kdf.derive(password)
+	
+	#--Can't use the bottom to encrypt
+	#password = 'orianthi'
+	#private_key = rsa.generate_private_key(public_exponent=65537, key_size=16, backend=default_backend())
+	#pem_kr = private_key.private_bytes(encoding=serialization.Encoding.PEM, 
+                                #format=serialization.PrivateFormat.PKCS8, 
+                                #encryption_algorithm=serialization.BestAvailableEncryption(password.encode()))
+	return key
 
 def gen_iv():
-	return os.urandom(16)
+	salt = os.urandom(16)
+	idf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=16,salt=salt,iterations=100000,backend=default_backend())
+	ivval = b'MojoJojo'
+	iv = idf.derive(ivval)
+	return iv
 
 def get_key_used_in_encryption(data):
 	return data[:16]
@@ -85,8 +101,36 @@ def main():
 	#Get public key of user2 from certificate
 	public_key_user2 = certificate.public_key()
 	
+	#Makes the key in PEM format - easier to write to file and encrypt??
+	
+	#Use this ONLY to write to file!!!
+	pem_pubkey_user2 = public_key_user2.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
+	
+	
 	#Encrypt the secret key used for the file encryption with the public key of user 2
+	
 	#in class as if he wants us to generate secrey key for encryption using os.urandom or if it has to be RSA generated keys?? Like in certificates.py
+	
+	print(key, 'secret key used')
+	print(pem_pubkey_user2, 'public key in bytes?\n')
+	
+	#Writes them both to a .pem file to encrypt. Or should it be a txt file?
+	with open('combo_seckey_and_pubkey.pem', 'wb') as file:
+		file.write(key)
+		file.write(pem_pubkey_user2)
+	
+	#Just reads the contents inside to make sure
+	with open('combo_seckey_and_pubkey.pem', 'rb') as infile:
+		datta = infile.read()
+		print(datta, '\n')
+	
+	#Now for the encryption of the combination - encrypt using OFB??
+	encrypt_combo = encrypt_OFB(datta)
+	
+	
+	#Takes away the secret key and decodes the public key. Works fine !!
+	#dattaa = datta.lstrip(datta[:16])
+	#print(dattaa.decode(), 'key away')
 	
 if __name__ == "__main__":
 	main()
