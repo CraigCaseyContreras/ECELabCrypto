@@ -4,7 +4,6 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization 
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives.asymmetric import utils
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
@@ -38,6 +37,11 @@ def gen_random_key():
 	return os.urandom(16)
 
 def gen_iv():
+	#salt = os.urandom(16)
+	#idf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=16,salt=salt,iterations=100000,backend=default_backend())
+	#ivval = b'MojoJojo'
+	#iv = idf.derive(ivval)
+	#return iv
 	return os.urandom(16)
 
 def get_key_used_in_encryption(data):
@@ -46,6 +50,14 @@ def get_key_used_in_encryption(data):
 def split(strng, sep, pos):
 	strng = strng.split(sep)
 	return sep.join(strng[:pos]), sep.join(strng[pos:])
+
+def digestSHA256(byte_user):
+	myhash = hashes.SHA256()
+	backend = default_backend()
+	hasher = hashes.Hash(myhash, backend)
+	hasher.update(byte_user)
+	digest = hasher.finalize()
+	return digest
 
 def main():
 	#Create an encrypted file with a randomly generated secret key
@@ -102,8 +114,8 @@ def main():
 	
 	#in class as if he wants us to generate secrey key for encryption using os.urandom or if it has to be RSA generated keys?? Like in certificates.py
 	
-	print(key, 'secret key used')
-	print(pem_pubkey_user2, 'public key in bytes?\n')
+	#print(key, 'secret key used')
+	#print(pem_pubkey_user2, 'public key in bytes?\n')
 	
 	#Writes them both to a .pem file to encrypt. Or should it be a txt file?
 	with open('combo_seckey_and_pubkey.pem', 'wb') as file:
@@ -113,11 +125,12 @@ def main():
 	#Just reads the contents inside to make sure
 	with open('combo_seckey_and_pubkey.pem', 'rb') as infile:
 		datta = infile.read()
-	print(datta, 'contents of the combo file \n')
+		
+	#print(datta, 'contents of the combo file \n')
 	
 	#Now for the encryption of the combination - encrypt using OFB??
 	encrypt_combo = encrypt_OFB(datta)
-	print(encrypt_combo, 'encrypted combo file\n')
+	
 	
 	#Takes away the secret key and leaves the public key. Works fine !!
 	#To decode is when we will have to convert back from bytes. Leave both as bytes until decryption!!!
@@ -129,7 +142,26 @@ def main():
 	
 	
 	#Create a message digest of the encrypted file and the encrypted key
+	#So just combine ciphertext and encrypt_combo
 	
+	message_to_digest = ciphertext + encrypt_combo
+	
+	#I use a digest of SHA256
+	digested_message = digestSHA256(message_to_digest)
+	
+	#Sign this message digest with user 1’s private key - from User 1 private key file in keystore k1
+	
+	from cryptography.hazmat.primitives.asymmetric import padding
+	
+	beginning = split(strng, '-----END RSA PRIVATE KEY-----', 1)
+	privkey_user1 = beginning[0] + '-----BEGIN RSA PRIVATE KEY-----'
+	
+	#Write privkey_user1 to file 'user1privkey.pem'
+	with open('user1privkey.pem', 'wb') as file:
+		file.write(privkey_user1.encode()) #did encode to keep consistent - all has been bytes so far
+	
+	#Now load priv key in order to sign
+
 	
 if __name__ == "__main__":
 	main()
