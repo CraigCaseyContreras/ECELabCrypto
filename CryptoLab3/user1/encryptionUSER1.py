@@ -17,37 +17,28 @@ import os
 def encrypt_OFB(data):
 	#Encrypts `data` using OFB mode and PKCS#7 padding, with the given initialization vector (iv).
 	
+	#In OFB mode, no padding is required - one of its advantages
+	
 	padder = padding.PKCS7(128).padder()
 	random_key = gen_random_key()
 	iv = gen_iv()
 	cipher = Cipher(algorithms.AES(random_key), modes.OFB(iv), backend=default_backend())
 	encryptor = cipher.encryptor()
-	mydata_pad = padder.update(data) + padder.finalize()
-	ct = encryptor.update(mydata_pad) + encryptor.finalize()
+	#mydata_pad = padder.update(data) + padder.finalize()
+	ct = encryptor.update(data) + encryptor.finalize()
 	return random_key + ct #Random key is saved to the front of the ciphertext
 
 def gen_random_key():
 	# Just generates a random secret key using previous methods.
 	
-	password = b'orianthi'
-	salt = os.urandom(16)
-	kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=16,salt=salt,iterations=100000,backend=default_backend())
-	key = kdf.derive(password)
-	
-	#--Can't use the bottom to encrypt
-	#password = 'orianthi'
-	#private_key = rsa.generate_private_key(public_exponent=65537, key_size=16, backend=default_backend())
-	#pem_kr = private_key.private_bytes(encoding=serialization.Encoding.PEM, 
-                                #format=serialization.PrivateFormat.PKCS8, 
-                                #encryption_algorithm=serialization.BestAvailableEncryption(password.encode()))
-	return key
+	#password = b'orianthi'
+	#salt = os.urandom(16)
+	#kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=16,salt=salt,iterations=100000,backend=default_backend())
+	#key = kdf.derive(password)
+	return os.urandom(16)
 
 def gen_iv():
-	salt = os.urandom(16)
-	idf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=16,salt=salt,iterations=100000,backend=default_backend())
-	ivval = b'MojoJojo'
-	iv = idf.derive(ivval)
-	return iv
+	return os.urandom(16)
 
 def get_key_used_in_encryption(data):
 	return data[:16]
@@ -122,15 +113,23 @@ def main():
 	#Just reads the contents inside to make sure
 	with open('combo_seckey_and_pubkey.pem', 'rb') as infile:
 		datta = infile.read()
-		print(datta, '\n')
+	print(datta, 'contents of the combo file \n')
 	
 	#Now for the encryption of the combination - encrypt using OFB??
 	encrypt_combo = encrypt_OFB(datta)
+	print(encrypt_combo, 'encrypted combo file\n')
+	
+	#Takes away the secret key and leaves the public key. Works fine !!
+	#To decode is when we will have to convert back from bytes. Leave both as bytes until decryption!!!
+	
+	#keyy = get_key_used_in_encryption(encrypt_combo)
+	#print(keyy, 'key from file - encrypted')
+	#dattaa = encrypt_combo.lstrip(encrypt_combo[:16])
+	#print(dattaa, 'key away from file - encrypted')
 	
 	
-	#Takes away the secret key and decodes the public key. Works fine !!
-	#dattaa = datta.lstrip(datta[:16])
-	#print(dattaa.decode(), 'key away')
+	#Create a message digest of the encrypted file and the encrypted key
+	
 	
 if __name__ == "__main__":
 	main()
