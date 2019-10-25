@@ -8,10 +8,10 @@ import datetime
 
 #Gets the private key
 password = 'hello'
-private_key = serialization.load_pem_private_key(open('kr.pem', 'rb').read(),password.encode(),default_backend())  
+private_key = serialization.load_pem_private_key(open('../kr.pem', 'rb').read(),password.encode(),default_backend())  
 
 #Gets the public key
-public_key = serialization.load_pem_public_key(open('ku.pem', 'rb').read(),default_backend())  
+public_key = serialization.load_pem_public_key(open('../ku.pem', 'rb').read(),default_backend())  
 
 #Both keys are the same one used as in CryptoLab2
 print("----------PUBLIC AND PRIVATE KEYS FROM CRYPTOLAB2 RETRIEVED----------")
@@ -34,7 +34,7 @@ builder = builder.issuer_name(issuer)
 
 #Set the date
 builder = builder.not_valid_before(datetime.datetime.utcnow())
-builder = builder.not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=10)) #Certificte is valid for 10 days
+builder = builder.not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=100)) #Certificte is valid for 10 days
 
 #Set a random serial number
 builder = builder.serial_number(x509.random_serial_number())
@@ -75,19 +75,19 @@ if user2 == 'yes':
                                 format=serialization.PrivateFormat.PKCS8, 
                                 encryption_algorithm=serialization.BestAvailableEncryption(password.encode()))
 	pem_ku = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
-    #writes to pem_kr2
-	with open('kr2.pem','wb') as file:
+    #writes 
+	with open('from_certificates_kr2.pem','wb') as file:
 		file.write(pem_kr)
 
-    #writes to pem_kr2
-	with open('ku2.pem','wb') as file:
+    #writes
+	with open('from_certificates_ku2.pem','wb') as file:
 		file.write(pem_ku)
 
 	#Loads private key
-	private_key = serialization.load_pem_private_key(open('kr2.pem', 'rb').read(),password.encode(),default_backend())  
+	private_key = serialization.load_pem_private_key(open('from_certificates_kr2.pem', 'rb').read(),password.encode(),default_backend())  
 
 	#Gets the public key
-	public_key = serialization.load_pem_public_key(open('ku2.pem', 'rb').read(),default_backend()) 
+	public_key = serialization.load_pem_public_key(open('from_certificates_ku2.pem', 'rb').read(),default_backend()) 
 
     #Both keys are the same one used as in CryptoLab2
 	print("\n----------PUBLIC AND PRIVATE KEYS FOR USER2 GENERATED----------")

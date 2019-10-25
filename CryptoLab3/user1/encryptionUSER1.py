@@ -18,7 +18,7 @@ def encrypt_OFB(data):
 	
 	#In OFB mode, no padding is required - one of its advantages
 	
-	padder = padding.PKCS7(128).padder()
+	#padder = padding.PKCS7(128).padder()
 	random_key = gen_random_key()
 	iv = gen_iv()
 	cipher = Cipher(algorithms.AES(random_key), modes.OFB(iv), backend=default_backend())
@@ -120,7 +120,7 @@ def main():
 	#Writes them both to a .pem file to encrypt. Or should it be a txt file?
 	with open('combo_seckey_and_pubkey.pem', 'wb') as file:
 		file.write(key)
-		file.write(pem_pubkey_user2)
+		file.write(pem_pubkey_user2) #needs this bcause bytes-like object needed
 	
 	#Just reads the contents inside to make sure
 	with open('combo_seckey_and_pubkey.pem', 'rb') as infile:
@@ -153,14 +153,24 @@ def main():
 	
 	from cryptography.hazmat.primitives.asymmetric import padding
 	
-	beginning = split(strng, '-----END RSA PRIVATE KEY-----', 1)
-	privkey_user1 = beginning[0] + '-----BEGIN RSA PRIVATE KEY-----'
+	#Now load priv key in order to sign from keystore k1
+	with open('../k1.pem', 'rb') as file:
+		private_key = serialization.load_pem_private_key(
+        data=file.read(), 
+        password='hello'.encode(),
+        backend=default_backend())
 	
-	#Write privkey_user1 to file 'user1privkey.pem'
-	with open('user1privkey.pem', 'wb') as file:
-		file.write(privkey_user1.encode()) #did encode to keep consistent - all has been bytes so far
+	pad = padding.PSS(mgf=padding.MGF1(hashes.SHA256()),  
+                  salt_length=padding.PSS.MAX_LENGTH)
 	
-	#Now load priv key in order to sign
+	#The ONLY WAY IT SIGNS IS IF THE KEY IS ENCRYPTED!!!!!!!
+	sig = private_key.sign(data=digested_message,
+                       padding=pad,
+                       algorithm=utils.Prehashed(hashes.SHA256()))
+	#Saves signature
+	sig_file = 'signature_done_by_user1' + '.sig'
+	with open(sig_file, 'wb') as signature_file:
+		signature_file.write(sig)
 
 	
 if __name__ == "__main__":
