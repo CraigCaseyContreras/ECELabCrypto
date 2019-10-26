@@ -18,12 +18,10 @@ def encrypt_OFB(data):
 	
 	#In OFB mode, no padding is required - one of its advantages
 	
-	#padder = padding.PKCS7(128).padder()
 	random_key = gen_random_key()
 	iv = gen_iv()
 	cipher = Cipher(algorithms.AES(random_key), modes.OFB(iv), backend=default_backend())
 	encryptor = cipher.encryptor()
-	#mydata_pad = padder.update(data) + padder.finalize()
 	ct = encryptor.update(data) + encryptor.finalize()
 	return random_key + ct #Random key is saved to the front of the ciphertext
 
@@ -73,6 +71,11 @@ def main():
 	
 	#The encryption mode I will do is OFB, since it is symmertric.
 	ciphertext = encrypt_OFB(data)
+	#print(ciphertext)
+	
+	#Now save the ciphertext as a file
+	with open('ciphertext.txt', 'wb') as file:
+		file.write(ciphertext)
 	
 	#Encrypt the secret key used for the file encryption with the public key of user 2
 	
@@ -111,11 +114,7 @@ def main():
 	
 	
 	#Encrypt the secret key used for the file encryption with the public key of user 2
-	
-	#in class as if he wants us to generate secrey key for encryption using os.urandom or if it has to be RSA generated keys?? Like in certificates.py
-	
-	#print(key, 'secret key used')
-	#print(pem_pubkey_user2, 'public key in bytes?\n')
+
 	
 	#Writes them both to a .pem file to encrypt. Or should it be a txt file?
 	with open('combo_seckey_and_pubkey.pem', 'wb') as file:
@@ -130,6 +129,10 @@ def main():
 	
 	#Now for the encryption of the combination - encrypt using OFB??
 	encrypt_combo = encrypt_OFB(datta)
+	
+	#Now write the encr to a file
+	with open('encrypt_combo.txt', 'wb') as file:
+		file.write(encrypt_combo)
 	
 	
 	#Takes away the secret key and leaves the public key. Works fine !!
@@ -148,6 +151,10 @@ def main():
 	
 	#I use a digest of SHA256
 	digested_message = digestSHA256(message_to_digest)
+	
+	#writes the digested message to a file
+	with open('digested_message.pem', 'wb') as digester:
+		digester.write(digested_message)
 	
 	#Sign this message digest with user 1’s private key - from User 1 private key file in keystore k1
 	
