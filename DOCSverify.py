@@ -35,7 +35,7 @@ print("----------VERIFYING THE SIGNATURE----------")
 try:
     public_key.verify(signature=signa,data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
 except:
-    print("Key is invalid!")
+    print("Signature  is invalid!")
 else:
-    print("Key is valid!")
+    print("Signature  is valid!")
 
