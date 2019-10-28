@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from encodings.base64_codec import base64_encode
+from encodings.base64_codec import base64_decode
 from binascii import unhexlify
 from cryptography.hazmat.primitives.asymmetric import utils
 import collections
@@ -91,18 +92,20 @@ def main():
 					salt_length=padding.PSS.MAX_LENGTH)
 
 	#Signs the padded data
-	sig = private_key.sign(data=digest,
+	sig = base64_encode(private_key.sign(data=digest,
 						padding=pad,
-						algorithm=utils.Prehashed(myhash))
+						algorithm=utils.Prehashed(myhash)))[0]
 
 	#Saves it to a signature with .sig extension
 	sig_file = 'signatureTask4' + '.sig'
 	with open(sig_file, 'wb') as signature_file:
+		signature_file.write(b'-----BEGIN SIGNATURE-----\n')
 		signature_file.write(sig)
+		signature_file.write(b'-----END SIGNATURE-----\n')
 
 	#Loads the signature - Works it's fine 
 	with open(sig_file, 'rb') as file:
-		signa = file.read()
+		   signa = file.read().split(b'-----BEGIN SIGNATURE-----\n')[1].split(b'-----END SIGNATURE-----\n')[0]
 
 	#Use to unpad
 	pad = padding.PSS(mgf=padding.MGF1(hashes.SHA256()), salt_length=padding.PSS.MAX_LENGTH)
@@ -113,7 +116,7 @@ def main():
 	#Verify the signature
 	try:
 		print("----------VALIDATING KEY----------")
-		public_key.verify(signature=signa,data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
+		public_key.verify(signature=base64_decode(signa)[0],data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
 	except:
 		print("Key is invalid!")
 	else:

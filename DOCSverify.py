@@ -5,6 +5,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding 
 from cryptography.hazmat.primitives.asymmetric import utils
 from encodings.base64_codec import base64_encode
+from encodings.base64_codec import base64_decode
         
 #Gets the public key
 public_key = serialization.load_pem_public_key(open('ku.pem', 'rb').read(),default_backend())  
@@ -22,7 +23,8 @@ print("----------LOADED THE HASHED DATA----------")
 
 #Loads the signature - Works it's fine 
 with open('signature.sig', 'rb') as file:
-    signa = file.read()
+    signa = file.read().split(b'-----BEGIN SIGNATURE-----\n')[1].split(b'-----END SIGNATURE-----\n')[0]
+    #signa = signa.decode()
 
 print("----------LOADED THE SIGNATURE----------")
 
@@ -33,7 +35,7 @@ pad = padding.PSS(mgf=padding.MGF1(hashes.SHA256()),
 #Verify the signature
 print("----------VERIFYING THE SIGNATURE----------")
 try:
-    public_key.verify(signature=signa,data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
+    public_key.verify(signature=base64_decode(signa)[0],data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
 except:
     print("Signature  is invalid!")
 else:

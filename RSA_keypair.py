@@ -27,9 +27,6 @@ pem_ku = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=ser
 fname = "kr.pem"
 fname2 = "ku.pem"
 
-
-#How do I know if this is correct? -Did the isinstance things
-
 #Writes to pem_kr
 with open(fname,'wb') as file:
     file.write(pem_kr)

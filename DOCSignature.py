@@ -33,15 +33,17 @@ print("----------PADDED DATA----------")
 
 
 #Signs the padded data
-sig = private_key.sign(data=digest,
+sig = base64_encode(private_key.sign(data=digest,
                        padding=pad,
-                       algorithm=utils.Prehashed(myhash))
+                       algorithm=utils.Prehashed(myhash)))[0]
 print("----------SIGNED PADDED DATA----------")
 
 #Saves it to a signature with .sig extension
 sig_file = 'signature' + '.sig'
 with open(sig_file, 'wb') as signature_file:
+    signature_file.write(b'-----BEGIN SIGNATURE-----\n')
     signature_file.write(sig)
+    signature_file.write(b'-----END SIGNATURE-----\n')
 
 print("Congrats! The signature has been written!")
     

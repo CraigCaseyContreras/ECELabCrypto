@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.asymmetric import utils
 from encodings.base64_codec import base64_encode
-from base64 import b64encode, b64decode
+from encodings.base64_codec import base64_decode
 
 #Use the signing code from CryptoLab2 Task 3.1 to create a signature for a data file
 print("\t----------SIGNING---------- TASK 2.1\n")
@@ -33,15 +33,17 @@ pad = padding.PKCS1v15()
 print("----------PADDING SET----------")
 
 #Signs the padded data
-sig = private_key.sign(data=digest,
+sig = base64_encode(private_key.sign(data=digest,
                        padding=pad,
-                       algorithm=utils.Prehashed(myhash))
+                       algorithm=utils.Prehashed(myhash)))[0]
 print("----------SIGNED PADDED DATA----------")
 
 #Saves it to a signature with .sig extension
 sig_file = 'signatureCryptoLab3' + '.sig'
 with open(sig_file, 'wb') as signature_file:
+	signature_file.write(b'-----BEGIN SIGNATURE-----\n')
 	signature_file.write(sig)
+	signature_file.write(b'-----END SIGNATURE-----\n')
 print("\nCongrats! The signature has been written!\n")
     
 #-------------------Use the verification code from CryptoLab2 Task 3.2 to verify the signature-------------------
@@ -60,14 +62,15 @@ public_key = certificate.public_key()
 
 #Loads the signature
 with open(sig_file, 'rb') as file:
-	signa = file.read()
+	signa = file.read().split(b'-----BEGIN SIGNATURE-----\n')[1].split(b'-----END SIGNATURE-----\n')[0]
+	
 print("----------LOADED THE SIGNATURE----------")
 
 #Verify the signature
 print("----------VERIFYING THE SIGNATURE----------")
 
 try:
-	public_key.verify(signature=signa,data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
+	public_key.verify(signature=base64_decode(signa)[0],data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
 except:
 	print("\nKey is invalid!")
 else:
