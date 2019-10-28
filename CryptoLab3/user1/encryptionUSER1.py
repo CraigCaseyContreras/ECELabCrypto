@@ -14,7 +14,6 @@ from base64 import b64encode, b64decode
 import random
 import os
 
-
 def encrypt_OFB(data):
 	#Encrypts `data` using OFB mode and PKCS#7 padding, with the given initialization vector (iv).
 	
@@ -25,24 +24,14 @@ def encrypt_OFB(data):
 	cipher = Cipher(algorithms.AES(random_key), modes.OFB(iv), backend=default_backend())
 	encryptor = cipher.encryptor()
 	ct = encryptor.update(data) + encryptor.finalize()
-	return random_key + ct #Random key is saved to the front of the ciphertext
+	return random_key + iv + ct #Random key is saved to the front of the ciphertext and iv after that. Both are size 16
 
 def gen_random_key():
-	# Just generates a random secret key using previous methods.
-	
-	#password = b'orianthi'
-	#salt = os.urandom(16)
-	#kdf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=16,salt=salt,iterations=100000,backend=default_backend())
-	#key = kdf.derive(password)
-	#return key
-	return os.urandom(16)
+	key = os.urandom(16)
+	return key
 
 def gen_iv():
-	#salt = os.urandom(16)
-	#idf = PBKDF2HMAC(algorithm=hashes.SHA256(),length=16,salt=salt,iterations=100000,backend=default_backend())
-	#ivval = b'MojoJojo'
-	#iv = idf.derive(ivval)
-	#return iv
+
 	return os.urandom(16)
 
 def get_key_used_in_encryption(data):
@@ -76,32 +65,36 @@ def privkeyUSER1():
 
 def main():
 	#Create an encrypted file with a randomly generated secret key
-	
-	#So here, I would just use the encryption function and create a random file to encrypt. I will use a generate key function 
-
-	
-	#Now to encrypt a file with the random generated key. The file to encrypt is "file_exchange_file_to_encrypt.txt"
-	
+	from cryptography.hazmat.primitives.asymmetric import padding
+	pad = padding.PKCS1v15()
 	with open('file_exchange_file_to_encrypt.txt', 'rb') as plaintext:
 		data = plaintext.read()
-	#print(data)
+	
+	print('----- File to encrypt is loaded! -----')
 	
 	#The encryption mode I will do is OFB, since it is symmertric.
 	ciphertext = encrypt_OFB(data)
-	#print(ciphertext)
+	
+	print("----- File is encrypted using OFB mode! -----")
+
 	
 	#Now save the ciphertext as a file
 	with open('ciphertext.txt', 'wb') as file:
 		file.write(ciphertext)
 	
+	print("----- Ciphertext contents written to ciphertext.txt! -----")
 	#Encrypt the secret key used for the file encryption with the public key of user 2
 	
 	#First, need to get the secret key used in the encryption
 	key = get_key_used_in_encryption(ciphertext)
+	print(key)
 	
 	#Strip the key away from the ciphertext
 	ciphertext = ciphertext.lstrip(ciphertext[:16])
 	
+	#Now re-write the ciphertext, without the key_k1 - keep the IV!!
+	with open('ciphertext.txt', 'wb') as file:
+		file.write(ciphertext)
 	
 	#Now need to get the public key of user2 - From User 2 certificate in keystore k1
 	
@@ -109,12 +102,15 @@ def main():
 	#The first section is the key key_k2, then the cert2, then the cert1 in keystore k2
 	
 	#Reads content of keystore k1
+	
+	print("\n ----- Opening keystore K1! -----")
 	with open('../k1.pem', 'r') as infile:
 		reader = infile.read()
 	
 	#Gets the certificate for user2
 	strng = reader
 	lister = split(strng, '-----BEGIN CERTIFICATE-----', 2)
+	print("----- Received and wrote user 2 certificate from keystore! -----")
 	
 	#Writes what was received to a pem file for user2 certificate
 	with open('user2cert.pem', 'w') as file:
@@ -126,11 +122,12 @@ def main():
         
 	#Get public key of user2 from certificate
 	public_key_user2 = certificate.public_key()
-
+	print("----- Public key received from certificate!-----")
 	#Encrypt the secret key used for the file encryption with the public key of user 2
-	from cryptography.hazmat.primitives.asymmetric import padding
 
-	encrypted_secret_key = public_key_user2.encrypt(key, padding.OAEP( mgf=padding.MGF1(algorithm=hashes.SHA256()), algorithm=hashes.SHA256(), label=None))
+	encrypted_secret_key = public_key_user2.encrypt(key, pad)
+	
+	print("----- Encrypted secret key used for file encryption with user 2 public key! -----")
 	
 	#Wite the encrypted_secret_key to a file
 	with open('encrypted_secret_key.pem', 'wb') as file:
@@ -142,6 +139,7 @@ def main():
 	
 	#I use a digest of SHA256
 	digested_message = digestSHA256(message_to_digest)
+	print("----- Message digest of the encrypted file and the encrypted key created! -----")
 	
 	#writes the digested message to a file
 	with open('digested_message.pem', 'wb') as digester:
@@ -159,8 +157,7 @@ def main():
         password='hello'.encode(),
         backend=default_backend())
 	
-	pad = padding.PSS(mgf=padding.MGF1(hashes.SHA256()),  
-                  salt_length=padding.PSS.MAX_LENGTH)
+	print("----- Private key received from keystore 1! -----")
 	
 	#The ONLY WAY IT SIGNS IS IF THE KEY IS ENCRYPTED!!!!!!!
 	sig = private_key.sign(data=digested_message,
@@ -172,7 +169,8 @@ def main():
 	
 	with open(sig_file, 'wb') as signature_file:
 		signature_file.write(sig)
-
+    
+	print("----- Message digest signed and signature saved! -----")
 	
 if __name__ == "__main__":
 	main()

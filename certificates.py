@@ -3,7 +3,7 @@ from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import padding
-from datetime import datetime, timedelta
+import datetime
 
 #Gets the private key
 password = 'hello'
@@ -32,8 +32,8 @@ builder = builder.subject_name(subject)
 builder = builder.issuer_name(issuer)
 
 #Set the date - THINK THERE IS SOMETHING WRONG WITH THE CODE HERE???
-builder = builder.not_valid_before(datetime.datetime.today() - one_day)
-builder = builder.not_valid_after(datetime.datetime(2018, 8, 2))
+builder = builder.not_valid_before(datetime.datetime.utcnow())
+builder = builder.not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days = 100))
 
 #Set a random serial number
 builder = builder.serial_number(x509.random_serial_number())
