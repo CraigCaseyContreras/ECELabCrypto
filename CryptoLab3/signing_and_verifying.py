@@ -81,9 +81,6 @@ else:
 print("\t----------VERIFYING CERTIFICATE----------TASK 2.3\n")
 #Load the signature - done at top
 
-#with open('user1_cert.pem', 'rb') as file:
-#	certificate = x509.load_pem_x509_certificate(data=file.read(), backend=backend)
-
 #Get the public key from certificate. Already done. Saved in public__key
 
 #Get the signature
