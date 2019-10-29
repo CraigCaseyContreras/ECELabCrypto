@@ -140,10 +140,6 @@ def main():
 	digested_message = digestSHA256(message_to_digest)
 	print("----- Message digest of the encrypted file and the encrypted key created! -----")
 	
-	#writes the digested message to a file
-	with open('digested_message.pem', 'wb') as digester:
-		digester.write(digested_message)
-	
 	#Sign this message digest with user 1’s private key - from User 1 private key file in keystore k1'
 
 	#Now load priv key in order to sign - from keystore k1
@@ -159,15 +155,21 @@ def main():
 	print("----- Private key received from keystore 1! -----")
 	
 	#The ONLY WAY IT SIGNS IS IF THE KEY IS ENCRYPTED!!!!!!!
-	sig = private_key.sign(data=digested_message,
+	sig = base64_encode(private_key.sign(data=digested_message,
                        padding=pad,
-                       algorithm=utils.Prehashed(hashes.SHA256()))
-	
+                       algorithm=utils.Prehashed(hashes.SHA256())))[0]
+
+	#writes the digested message to a file
+	with open('digested_message.pem', 'wb') as digester:
+		digester.write(digested_message)
+
 	#Saves signature
 	sig_file = 'signature_done_by_user1' + '.sig'
 	
 	with open(sig_file, 'wb') as signature_file:
+		signature_file.write(b'-----BEGIN SIGNATURE-----\n')
 		signature_file.write(sig)
+		signature_file.write(b'-----END SIGNATURE-----\n')
     
 	print("----- Message digest signed and signature saved! -----")
 	
