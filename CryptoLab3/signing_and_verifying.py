@@ -72,9 +72,9 @@ print("----------VERIFYING THE SIGNATURE----------")
 try:
 	public_key.verify(signature=base64_decode(signa)[0],data=digest,padding=pad, algorithm=utils.Prehashed(myhash))
 except:
-	print("\nKey is invalid!")
+	print("\nSignature is invalid!")
 else:
-	print("\nKey is valid!\n")
+	print("\nSignature is valid!\n")
 	
 #----------------Task 2.3: Verifying a certificate-----------------------------
 
@@ -96,10 +96,10 @@ hasher_datta = hashes.Hash(myhash_datta, backend_datta)
 hasher_datta.update(datta)
 datta_digest = hasher_datta.finalize()
 
-#Verify the signature.. So I am guessing I use 'signat', 'data'?? So then what is the point of hashing?
+#Verify 
 try:
 	public_key.verify(signat,datta_digest,pad,algorithm=utils.Prehashed(myhash))
 except:
-	print("Key is invalid!")
+	print("Certificate is invalid!")
 else:
-	print("Key is valid!")
+	print("Certificate is valid!")
