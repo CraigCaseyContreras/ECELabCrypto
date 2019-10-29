@@ -8,10 +8,10 @@ import datetime
 
 #Gets the private key
 password = 'hello'
-private_key = serialization.load_pem_private_key(open('../kr.pem', 'rb').read(),password.encode(),default_backend())  
+private_key = serialization.load_pem_private_key(open('../CryptoLab2/kr.pem', 'rb').read(),password.encode(),default_backend())  
 
 #Gets the public key
-public_key = serialization.load_pem_public_key(open('../ku.pem', 'rb').read(),default_backend())  
+public_key = serialization.load_pem_public_key(open('../CryptoLab2/ku.pem', 'rb').read(),default_backend())  
 
 #Both keys are the same one used as in CryptoLab2
 print("----------PUBLIC AND PRIVATE KEYS FROM CRYPTOLAB2 RETRIEVED----------")

@@ -29,15 +29,15 @@ def split(strng, sep, pos):
 
 def privkeyUSER2():
 	writing = True
-	with open('../k2.pem', 'r') as f:
-		with open('outputk2.pem', 'w') as out:
+	with open('../k2.pem', 'rb') as f:
+		with open('outputk2.pem', 'wb') as out:
 			for line in f:
 				if writing:
-					if "-----BEGIN CERTIFICATE-----" in line:
+					if b"-----BEGIN CERTIFICATE-----" in line:
 						writing = False
 					else:
 						out.write(line)
-				elif "-----END CERTIFICATE-----" in line:
+				elif b"-----END CERTIFICATE-----" in line:
 					writing = True    
 
 def main():
@@ -46,20 +46,20 @@ def main():
 
 	#First need to load user 1's public key - From User 1 certificate in keystore k2
 	#Reads content of keystore k2
-	with open('../k2.pem', 'r') as infile:
+	with open('../k2.pem', 'rb') as infile:
 		reader = infile.read()
 		
 	print('----- Loaded contents of k2! -----')
 		
 	#Gets the certificate for user1
 	strng = reader
-	lister = split(strng, '-----BEGIN CERTIFICATE-----', 2)
+	lister = split(strng, b'-----BEGIN CERTIFICATE-----', 2)
 	
 	print('----- Loaded user1 certificate! -----')
 	
 	#Writes what was received to a pem file for user1 certificate
-	with open('user1cert.pem', 'w') as file:
-		file.write("-----BEGIN CERTIFICATE-----" + lister[1])
+	with open('user1cert.pem', 'wb') as file:
+		file.write(b"-----BEGIN CERTIFICATE-----" + lister[1])
 		
 	#Load the certificate for User 1
 	with open('user1cert.pem', 'rb') as file:
@@ -114,7 +114,8 @@ def main():
 	
 	#So to decrypt, just use the decryption of OFB function.
 	#open the message
-	with open('../user1/ciphertext.txt', 'rb') as file:
+	
+	with open('../user1/ciphertext.txt', 'rb') as file: #using from that path because the ciphertext in the user2 folder doesn't change when user1 program is run.
 		contents = file.read()
 	print('----- Decrypted ciphertext using OFB decryption! -----')
 	plaintext = decryptOFB(orig_secret_key, contents)

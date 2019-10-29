@@ -17,7 +17,7 @@ with open('dataFile.txt', 'r') as file:
 
 #Use the private key for User 1 as the private key for signing
 password = 'hello'
-private_key = serialization.load_pem_private_key(open('../kr.pem', 'rb').read(),password.encode(),default_backend())  
+private_key = serialization.load_pem_private_key(open('../CryptoLab2/kr.pem', 'rb').read(),password.encode(),default_backend())  
 print("----------GOT PRIVATE KEY OF USER1----------")
 
 #Loads and hashes the data from the file

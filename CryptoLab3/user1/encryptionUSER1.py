@@ -52,15 +52,15 @@ def digestSHA256(byte_user):
 def privkeyUSER1():
 	writing = True
 
-	with open('../k1.pem', 'r') as f:
-		with open('output.pem', 'w') as out:
+	with open('../k1.pem', 'rb') as f:
+		with open('output.pem', 'wb') as out:
 			for line in f:
 				if writing:
-					if "-----BEGIN CERTIFICATE-----" in line:
+					if b"-----BEGIN CERTIFICATE-----" in line:
 						writing = False
 					else:
 						out.write(line)
-				elif "-----END CERTIFICATE-----" in line:
+				elif b"-----END CERTIFICATE-----" in line:
 					writing = True    
 
 def main():
@@ -87,8 +87,7 @@ def main():
 	
 	#First, need to get the secret key used in the encryption
 	key = get_key_used_in_encryption(ciphertext)
-	print(key)
-	
+
 	#Strip the key away from the ciphertext
 	ciphertext = ciphertext.lstrip(ciphertext[:16])
 	
@@ -104,17 +103,17 @@ def main():
 	#Reads content of keystore k1
 	
 	print("\n ----- Opening keystore K1! -----")
-	with open('../k1.pem', 'r') as infile:
+	with open('../k1.pem', 'rb') as infile:
 		reader = infile.read()
 	
 	#Gets the certificate for user2
 	strng = reader
-	lister = split(strng, '-----BEGIN CERTIFICATE-----', 2)
+	lister = split(strng, b'-----BEGIN CERTIFICATE-----', 2)
 	print("----- Received and wrote user 2 certificate from keystore! -----")
 	
 	#Writes what was received to a pem file for user2 certificate
-	with open('user2cert.pem', 'w') as file:
-		file.write("-----BEGIN CERTIFICATE-----" + lister[1])
+	with open('user2cert.pem', 'wb') as file:
+		file.write(b"-----BEGIN CERTIFICATE-----" + lister[1])
 	
 	#Load the certificate for User 2
 	with open('user2cert.pem', 'rb') as file:
