@@ -8,7 +8,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 from encodings.base64_codec import base64_encode
 
-#print("\nUnder this are the results for TASK 2.1")
+print("\nUnder this are the results for TASK 2.1")
 backend = default_backend()
 salt = os.urandom(16)
 
@@ -23,27 +23,27 @@ ivval = b'hello'
 key = kdf.derive(passwd)
 iv = idf.derive(ivval)
 
-#print(key.hex())
-#print(iv.hex())
+print(key.hex())
+print(iv.hex())
 #---------------------Task 2.2----------------------------------
-#print("\nUnder this are the results for TASK 2.2")
-#cipher = Cipher(algorithm=algorithms.AES(key), mode=modes.CBC(iv),backend=backend)
-#encryptor = cipher.encryptor()
-#mydata = b'1234567812345678'
-#print(mydata)
-#ciphertext = encryptor.update(mydata) + encryptor.finalize() #Turns ciphertext into bytes
-#print(ciphertext.hex()) #prints out the byted ciphertext into hex
-#decryptor = cipher.decryptor()
-#plaintext = decryptor.update(ciphertext) + decryptor.finalize()
-#print(plaintext.hex())
+print("\nUnder this are the results for TASK 2.2")
+cipher = Cipher(algorithm=algorithms.AES(key), mode=modes.CBC(iv),backend=backend)
+encryptor = cipher.encryptor()
+mydata = b'1234567812345678'
+print(mydata)
+ciphertext = encryptor.update(mydata) + encryptor.finalize() #Turns ciphertext into bytes
+print(ciphertext.hex()) #prints out the byted ciphertext into hex
+decryptor = cipher.decryptor()
+plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+print(plaintext.hex())
 
-#print("\nBase64 encoder results:")
-#print(base64_encode(key))
-#print(base64_encode(iv))
-#print(base64_encode(ciphertext))
+print("\nBase64 encoder results:")
+print(base64_encode(key))
+print(base64_encode(iv))
+print(base64_encode(ciphertext))
 
 #---------------------Task 2.3 - 2.4-----------------------------------
-print("\nUnder this are the results for TASK 2.4 ECB mode") #Also used to showcase task 2.3
+print("\nUnder this are the results for TASK 2.3/2.4 - ECB mode") #Also used to showcase task 2.3
 cipher = Cipher(algorithm=algorithms.AES(key), mode=modes.ECB(),backend=backend)
 encryptor = cipher.encryptor()
 padder = padding.PKCS7(128).padder()
