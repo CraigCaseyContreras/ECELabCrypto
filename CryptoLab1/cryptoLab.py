@@ -21,7 +21,7 @@ while True:
     num = file.readinto(data)
     totalsize += num
     print(num, data)
-    print(num, data.hex())
+    #print(num, data.hex())
 
     if num == blocksize:
         file2.write(data)

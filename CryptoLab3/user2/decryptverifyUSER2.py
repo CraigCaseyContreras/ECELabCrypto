@@ -14,59 +14,43 @@ import random
 import os
 
 def decryptOFB(key_used, contents):
-	#Remember the IV is at the start of the cphertext. Need to strip it first
-	iv = contents[:16] #Get the iv
-	#Strip the iv away from the ciphertext
-	contents = contents.lstrip(contents[:16])
+	#Need to load iv
+	with open('../user1/iv.txt', 'rb') as file:
+		iv = file.read()
+	
 	backend = default_backend()
 	decryptor = Cipher(algorithm=algorithms.AES(key_used), mode=modes.OFB(iv),backend=backend).decryptor()
 	plaintext = decryptor.update(contents) + decryptor.finalize()
 	return plaintext
 
-def split(strng, sep, pos):
-	strng = strng.split(sep)
-	return sep.join(strng[:pos]), sep.join(strng[pos:])
-
-def privkeyUSER2():
-	writing = True
-	with open('../k2.pem', 'rb') as f:
-		with open('outputk2.pem', 'wb') as out:
-			for line in f:
-				if writing:
-					if b"-----BEGIN CERTIFICATE-----" in line:
-						writing = False
-					else:
-						out.write(line)
-				elif b"-----END CERTIFICATE-----" in line:
-					writing = True    
+def splitter(fname, desired):
+	with open(fname, 'r') as file:
+		stringg = file.read()
+		if desired == 'cert2':
+			stringg_list = stringg.split('-----BEGIN CERTIFICATE-----')
+			cert2_stuff = stringg_list[2]
+			return '-----BEGIN CERTIFICATE-----' + cert2_stuff
+		elif desired == 'priv_key':
+			stringg_list0 = stringg.split('-----END ENCRYPTED PRIVATE KEY-----')
+			priv_key_stuff = stringg_list0[0]
+			return priv_key_stuff + '-----END ENCRYPTED PRIVATE KEY-----'
 
 def main():
 	backend = default_backend()
+	
 	#Verify the signature using user 1’s public key 
 
 	#First need to load user 1's public key - From User 1 certificate in keystore k2
 	#Reads content of keystore k2
-	with open('../k2.pem', 'rb') as infile:
-		reader = infile.read()
-		
-	print('----- Loaded contents of k2! -----')
-		
 	#Gets the certificate for user1
-	strng = reader
-	lister = split(strng, b'-----BEGIN CERTIFICATE-----', 2)
+	
+	certificateUSER1 = splitter('../k2.pem', 'cert2').encode()
+	certUSER1 = x509.load_pem_x509_certificate(data=certificateUSER1,
+                                               backend=default_backend())
+	pub_keyUSER1 = certUSER1.public_key()
 	
 	print('----- Loaded user1 certificate! -----')
 	
-	#Writes what was received to a pem file for user1 certificate
-	with open('user1cert.pem', 'wb') as file:
-		file.write(b"-----BEGIN CERTIFICATE-----" + lister[1])
-		
-	#Load the certificate for User 1
-	with open('user1cert.pem', 'rb') as file:
-		certificate = x509.load_pem_x509_certificate(data=file.read(), backend=default_backend())
-	
-	#Get public key of user1 from certificate
-	public_key_user1 = certificate.public_key()
 	print('----- Received public key from user1 certificate! -----')
 
 	#Now we can verify the signature
@@ -75,7 +59,7 @@ def main():
 	pad = padding.PKCS1v15()
 	
 	# --> First we must load the digested message, the PEM file one
-	with open('../user1/digested_message.pem', 'rb') as file:
+	with open('../user1/digested_message.txt', 'rb') as file:
 		digest = file.read()
 	print('----- Loaded digested message! -----')
 
@@ -86,29 +70,28 @@ def main():
 		
 	
 	# --> Lastly we can verify the signature
-	print("----- VERIFYING SIGNATURE -----")
+	print('----- VERIFYING SIGNATURE -----')
 	try:
-		public_key_user1.verify(signature=signa,data=digest,
+		pub_keyUSER1.verify(signature=signa,data=digest,
                        padding=pad,
                        algorithm=utils.Prehashed(hashes.SHA256()))
 	except:
-		print("Signature is invalid!")
+		print('Signature is invalid!')
 	else:
-		print("Signature  is valid!")
+		print('Signature  is valid!')
 		
 	#Decrypt the secret key using user 2’s private key - From User 2 private key file in keystore k2
 	
-	privkeyUSER2()
-	print("-----DECRYPTING SECRET KEY -----")
-	with open('../k2.pem', 'rb') as file:
-		private_key_k2 = serialization.load_pem_private_key(
-        data=file.read(), 
+	private_key_k2 = splitter('../k2.pem', 'priv_key').encode()
+
+	private_key_k2 = serialization.load_pem_private_key(
+        data=private_key_k2,
         password='orianthi'.encode(),
         backend=default_backend())
 	
 	print('----- Received user2 private key from k2! -----')
-	path_encrypted_secret_key = '../user1/encrypted_secret_key.pem'
-	
+	path_encrypted_secret_key = '../user1/encrypted_secret_key.txt'
+
 	#Gets the secret key used
 	orig_secret_key = private_key_k2.decrypt(path_encrypted_secret_key, pad)
 	
@@ -127,5 +110,5 @@ def main():
 	
 	print('----- CONGRATS! -----')
 	
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()

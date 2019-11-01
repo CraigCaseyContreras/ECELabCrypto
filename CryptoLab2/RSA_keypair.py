@@ -15,21 +15,31 @@ public_key = private_key.public_key()
 
 #Passsword used
 password = 'hello'
+password2 = 'orianthi'
 
 #pem_kr and pem_ku stuff
 pem_kr = private_key.private_bytes(encoding=serialization.Encoding.PEM, 
                                 format=serialization.PrivateFormat.PKCS8, 
                                 encryption_algorithm=serialization.BestAvailableEncryption(password.encode()))
 
+pem_kr2 = private_key.private_bytes(encoding=serialization.Encoding.PEM, 
+                                format=serialization.PrivateFormat.PKCS8, 
+                                encryption_algorithm=serialization.BestAvailableEncryption(password2.encode()))
+
 pem_ku = public_key.public_bytes(encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo)
 
 #Now to save pem_kr to kr.pem and pem_ku to ku.pem
 fname = "kr.pem"
+fnamer = 'kr2.pem'
 fname2 = "ku.pem"
 
 #Writes to pem_kr
 with open(fname,'wb') as file:
     file.write(pem_kr)
+    
+#Writes to pem_kr2 - for CryptoLab3
+with open(fnamer,'wb') as file:
+    file.write(pem_kr2)
 
 #Loads it up to see if it is actually a private key and if it works
 with open('kr.pem', 'rb') as file:

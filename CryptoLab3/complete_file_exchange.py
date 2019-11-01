@@ -34,17 +34,15 @@ def generate_keys():
 	password_k2 = 'orianthi'
 	
 	#Private key for k1
-	#private_key_k1 = serialization.load_pem_private_key(open('kr.pem', 'rb').read(),password_k1.encode(),default_backend())  
-	
-	private_key_k1 = rsa.generate_private_key(public_exponent=65537, key_size=2048, backend=default_backend())
-	
+	with open('../CryptoLab2/kr.pem', 'rb') as file:
+		private_key_k1 = file.read()
 
 	print('- K1 KEY LOADED -')
 	
 	#Private key for k2
-	#private_key_k2 = serialization.load_pem_private_key(open('kr2.pem', 'rb').read(),password_k2.encode(),default_backend()) 
-	
-	private_key_k2 = rsa.generate_private_key(public_exponent=65537, key_size=2048, backend=default_backend())
+	with open('../CryptoLab2/kr2.pem', 'rb') as file:
+		private_key_k2 = file.read()
+
 	print('- K2 KEY LOADED -')
 	
 	return (private_key_k1, private_key_k2)
@@ -59,17 +57,9 @@ def main():
 	#kr passwrod: hello
 	#kr2 password: orianthi
 	
-	key1, key2 = generate_keys()
+	key_k1, key_k2 = generate_keys()
 	cert1, cert2 = generate_certificates()
-    
-	key_k1 = key1.private_bytes(encoding=serialization.Encoding.PEM, 
-                                format=serialization.PrivateFormat.PKCS8, 
-                                encryption_algorithm=serialization.BestAvailableEncryption('hello'.encode()))
-	
-	key_k2 = key2.private_bytes(encoding=serialization.Encoding.PEM, 
-                                format=serialization.PrivateFormat.PKCS8, 
-                                encryption_algorithm=serialization.BestAvailableEncryption('orianthi'.encode()))
-	#Makes keystore k1.pem
+
         
 	with open('k1.pem', 'wb') as file:
 		file.writelines([key_k1, cert1.public_bytes(serialization.Encoding.PEM), cert2.public_bytes(serialization.Encoding.PEM)])
