@@ -14,9 +14,11 @@ import random
 import string
 import os
 import itertools
+import time
 import json
-
-PASSWORD_SPACE = ['C', 'A', 'J', 'T', 'P']
+import csv
+import pandas as pd 
+import numpy as np 
 
 def digestSHA256(byte_user):
 	myhash = hashes.SHA256()
@@ -26,54 +28,90 @@ def digestSHA256(byte_user):
 	digest = hasher.finalize()
 	return digest
 
-def create_hash_table(n):
-	#STakes an integer called n. Returns a hash table with n number or place holders (emtpy lists)
-	return [[] for i in range(n)]
-
 def foo(l):
 	yield from itertools.product(*([l] * len(l)))
+	
+def randomPasswordUsingSpace(stringLength, space):
+	"""Generate a random string of fixed length using a space"""
+	pswd = ""
+	pswd_size = stringLength
+	alphabet = space 
+	for i in range(pswd_size):
+		new_letter = random.choice(alphabet)
+		pswd += new_letter
+	return pswd
 
-def randomString(stringLength):
+def randomPassword(stringLength):
 	"""Generate a random string of fixed length """
-	letters = PASSWORD_SPACE
-	return ''.join(random.choice(letters) for i in range(stringLength))
+	pswd = ""
+	pswd_size = stringLength
+	alphabet = list(string.ascii_uppercase) 
+	for i in range(pswd_size):
+		new_letter = random.choice(alphabet)
+		pswd += new_letter
+	return pswd
 
-def main():
+def getPasswordSpace(password):
+	return ''.join(set(password))
+
+def createDict(password):
 	print('------------CREATING DICTIONARY ----------')
+	my_dict = {}
+	for entryies in foo(password):
+		val = ''.join(entryies)
+		# print(val)
+		digest_val = digestSHA256(val.encode())
+		digest_val_hex = digest_val.hex()
+		my_dict[digest_val_hex] = val
+	with open('dictionary.csv', 'w') as f:
+		for key in my_dict.keys():
+			f.write("%s,%s\n"%(key,my_dict[key]))
+	print('<DICTIONARY CREATED>')
+
+def searchToFindPassword(fname, random_password):
+	print('------------USING DICTIONARY TO FIND: ' + random_password+ '------------')
+	#Reading the dictionary
+	with open(fname) as csv_file:
+		csv_reader = csv.reader(csv_file, delimiter=',')
+		line_count = 0
+		for row in csv_reader:
+			rows = f'{" ".join(row)}'
+			#Brute force search
+			if random_password in rows:
+				print('<PASSWORD FOUND>')
+				break
+
+def searchAndHashCombos(hash_rand_password, random_password):
+	print('------------GENERATING ALL COMBOS------------')
+	print('------------HASH TO FIND: ' + hash_rand_password.hex() + '------------')
+	for entries in foo(random_password):
+		val2 = ''.join(entries)
+		digest_val2 = digestSHA256(val2.encode())
+		if digest_val2 == hash_rand_password:
+			print('<HASH FOUND>')
+			break
+def main():
 	#d = bytes.fromhex('') - use for going from hex back to bytes
 	#Need to create the Dictionary - estimate size of password space
-	
-	password = 'TATAT' #password is all uppercase and 5 letters!!
-	
-	#Generate all combinations of passwords and for each combinationa.
-	#with open('dictionary.json', 'w') as fp:
-	with open('dictionary.txt', 'w') as file:
-		file.writelines('<HASH>\t<PASSWORD> \n')
-		for x in foo(password):
-			val = ''.join(x)
-			#Create a SHA256 hash of the value.
-			digest_val = digestSHA256((val.encode()))
-			#Need to write as hex or ele it will not write - Store the hash and the value to a file.
-			content =  digest_val.hex() + '\t\t\t' + val + '\n'
-			#Save the file, this is your dictionary
-			file.writelines(content)
-			#json.dump(content, fp)
-
-	print('<DICTIONARY CREATED>')
-	#Create a random 5-character password
-	random_password = randomString(5) # Does it have to be within the password space??
-	
+	password = randomPassword(5) #password is all uppercase and 5 letters!!
+	#Gets all unique characters to come up with a space
+	password_space = getPasswordSpace(password)
+	#Create dictionary
+	createDict(password)	
+	#Create a random 5-character password - using the space of the password
+	random_password = randomPasswordUsingSpace(5, password_space) 
 	#Find the hash of the password
 	hash_rand_password = digestSHA256(random_password.encode())
-	
 	"""
 	Time how long to do each of:
 	 - Search the dictionary to find the password
 	 - Generate and hash all combinations in order until you find the password
 	"""
-	
-	print('------------USING DICTIONARY TO FIND: ' + random_password+ '------------')
-	
+	searchToFindPassword('dictionary.csv', random_password)
+	searchAndHashCombos(hash_rand_password, random_password)
+
+
+		
 
 
 if __name__ == '__main__':
