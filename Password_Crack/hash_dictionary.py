@@ -9,13 +9,13 @@ from cryptography.hazmat.primitives.asymmetric import utils
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from encodings.base64_codec import base64_encode
-from base64 import b64encode, b64decode
+from encodings.base64_codec import base64_decode
 import random
 import string
+import hashlib
 import os
 import itertools
 import time
-import json
 import csv
 import pandas as pd 
 import numpy as np 
@@ -69,7 +69,6 @@ def createDict(password):
 	print('<DICTIONARY CREATED>')
 
 def searchToFindPassword(fname, random_password):
-	print('------------USING DICTIONARY TO FIND: ' + random_password+ '------------')
 	#Reading the dictionary
 	with open(fname) as csv_file:
 		csv_reader = csv.reader(csv_file, delimiter=',')
@@ -82,33 +81,134 @@ def searchToFindPassword(fname, random_password):
 				break
 
 def searchAndHashCombos(hash_rand_password, random_password):
-	print('------------GENERATING ALL COMBOS------------')
-	print('------------HASH TO FIND: ' + hash_rand_password.hex() + '------------')
 	for entries in foo(random_password):
 		val2 = ''.join(entries)
 		digest_val2 = digestSHA256(val2.encode())
 		if digest_val2 == hash_rand_password:
 			print('<HASH FOUND>')
 			break
+
+def percentage(percent, whole):
+	return (percent * whole) / 100.0
+
+def reduce(hash_value):
+	'''
+	Simply convert the hash value to a base- 64 representation and then take the first five characters as the generated password
+	'''
+	b64_representation = base64_encode(bytes.fromhex(hash_value))
+	generated_password = b64_representation[0][:5] #First 5 characters
+	generated_password = generated_password.decode()
+	return generated_password
+
+def rainbow_table(password):
+	combosOfPasswords = list()
+	indices = list()
+	tables = []
+	for entry in foo(password):
+		vals = ''.join(entry)
+		combosOfPasswords.append(vals)
+	
+	#So 10% of passwords rounded down is:
+	ten_percent = round(percentage(10, len(combosOfPasswords)))
+
+	#So there are ten_percent starting points, or ten_percent chains, each of length 10
+	number_of_chains = ten_percent
+	#Make table of index numbers to use for later
+	for i in range(number_of_chains):
+		indices.append(i)
+
+	#Choose a random index as a starting point, then remove so that it won't be chosen again
+	for loops in range(number_of_chains):
+		index = random.choice(indices)
+		indices.remove(index)
+		rand = combosOfPasswords[index]
+		print(rand, 'Chain # ', loops+1)
+
+		#Idea is after picking a random password - in string, to hash it, do base64, reduce and that is password2. Keep on until read password 10.
+		p = rand
+		for k in range(10):
+			print('value of p: ', p)
+			H = digestSHA256(p.encode())
+			print('digested: ',  H)
+			p = reduce(H.hex())
+			print('reduced: ', p)
+			print('\n\n')
+		end = p
+		tables.append([rand, end])
+	print(tables)
+
+		#print(52 // 26) #Same as modulo
+	
+		
+
+
+
+
+
+
+
+
+		# 	cipher = digestSHA256(combosOfPasswords[index].encode())
+		# 	combosOfPasswords[index] = cipher
+		# end_point = combosOfPasswords[index]
+			
+
+
+
+
+
+
+	#print(passwords)
+	#return combosOfPasswords
+		
+
+
 def main():
 	#d = bytes.fromhex('') - use for going from hex back to bytes
 	#Need to create the Dictionary - estimate size of password space
-	password = randomPassword(5) #password is all uppercase and 5 letters!!
+	 #password is all uppercase and 5 letters!!
+	password = randomPassword(5)
 	#Gets all unique characters to come up with a space
 	password_space = getPasswordSpace(password)
 	#Create dictionary
 	createDict(password)	
 	#Create a random 5-character password - using the space of the password
 	random_password = randomPasswordUsingSpace(5, password_space) 
+	
 	#Find the hash of the password
 	hash_rand_password = digestSHA256(random_password.encode())
+	#hash_rand_password = hashlib.sha256(random_password.encode()).hexdigest()
+
 	"""
 	Time how long to do each of:
 	 - Search the dictionary to find the password
 	 - Generate and hash all combinations in order until you find the password
 	"""
+	print('------------USING DICTIONARY TO FIND: ' + random_password+ '------------')
 	searchToFindPassword('dictionary.csv', random_password)
+
+	print('------------GENERATING ALL COMBOS------------')
+	print('------------HASH TO FIND: ' + hash_rand_password.hex() + '------------')
 	searchAndHashCombos(hash_rand_password, random_password)
+
+	#Task 2: Create and Use a Rainbow Table
+	'''
+	start with chains of length 10 and using 10% of the passwords as starting points.
+
+	So I guess I have to hash all combos using the original password's password space.
+	the reduction function will be a very simple function: 
+	Simply convert the hash value to a base- 64 
+	representation and then take the first five characters as the generated password.
+
+	1. Generate all combinations of passwords and for 10% of the combinations 
+	a. Calculate the chain starting at the chosen password
+	b. Record the final password
+	c. Save the start and end of the chain to a file
+	2. Save the file, this is your rainbow table
+
+	'''
+	print(rainbow_table(password))
+
 
 
 		
