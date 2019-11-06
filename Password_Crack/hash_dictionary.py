@@ -145,9 +145,8 @@ def write_to_csv(my_dict, fname):
 	with open(fname, 'w') as f:
 		for key in my_dict.keys():
 			f.write("%s,%s\n"%(key,my_dict[key]))
-	message = '<RAINBOW TABLE CREATED>\n'
-	print(message)
-	return message
+	print('<',fname,'CREATED>')
+	return 
 
 def read_table(fname):
 	"""Read Rainbow Table from csv file"""
