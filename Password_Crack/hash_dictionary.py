@@ -262,9 +262,22 @@ def main():
 	if find_resultant(loaded_rainbow, r) == None:
 		print('Try again. Please recalculate.')
 	else:
-		result, target_value = find_resultant(loaded_rainbow, r)
+		start_chain, end_chain = find_resultant(loaded_rainbow, r) #result, target_value interchangeable
+		password_crakced = ''
 		#Now hash the result until you reach the target_value.
-		#The password desired is the one before the hash
+		while start_chain != r:
+			starting = start_chain
+			print('\nStarting: ', starting)
+			hashed = digestSHA256(start_chain.encode())
+			print('Random password: ', random_password2)
+			print('Hashed: ', hashed)
+			print('Random password hash: ', hash_rand_password2)
+			reduced = reduce(hashed.hex())
+			print('Reduced: ', reduced)
+			print('Random password reduced: ', r)
+			start_chain = reduced
+			password_crakced = starting
+		print('\nThe password is: ', starting)
 		
 
 if __name__ == '__main__':
