@@ -123,11 +123,12 @@ def rainbow_table(password):
 	for loops in range(0,number_of_chains):
 		index = random.choice(indices)
 		indices.remove(index)
-		rand = combosOfPasswords[index]
+		intial = combosOfPasswords[index]
 		print('Chain # ', loops+1)
 
 		#Idea is after picking a random password - in string, to hash it, do base64, reduce and that is password2. Keep on until read password 10.
-		start = rand
+		start = intial
+
 		for k in range(0,10):
 			print('value of p: ', start)
 			H = digestSHA256(start.encode())
@@ -135,9 +136,8 @@ def rainbow_table(password):
 			start = reduce(H.hex())
 			print('reduced: ', start)
 			print('\n\n')
-		end = start
-		tables[rand] = end
-		#tables.append([rand, end])
+			if k == 9:
+				tables[intial] = start
 	return tables
 		
 def write_to_csv(my_dict, fname):
@@ -228,7 +228,7 @@ def main():
 
 	'''
 	print('------------CREATING RAINBOW TABLE------------')
-	rainbow_dict = wh(password)
+	rainbow_dict = rainbow_table(password)
 	print(rainbow_dict)
 	print('length: ', len(rainbow_dict))
 	write_to_csv(rainbow_dict, 'rainbow_table.csv')
