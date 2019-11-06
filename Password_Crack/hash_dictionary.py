@@ -146,7 +146,7 @@ def write_to_csv(my_dict, fname):
 		for key in my_dict.keys():
 			f.write("%s,%s\n"%(key,my_dict[key]))
 	print('<',fname,'CREATED>')
-	return 
+	return
 
 def read_table(fname):
 	"""Read Rainbow Table from csv file"""
@@ -204,11 +204,17 @@ def main():
 	 - Generate and hash all combinations in order until you find the password
 	"""
 	print('------------USING DICTIONARY TO FIND: ' + random_password+ '------------')
+	t1 = time.time()
 	searchToFindPassword('dictionary.csv', random_password)
+	time_spent = time.time() - t1
+	print('Average time: ', time_spent, 'seconds')
 
 	print('------------GENERATING ALL COMBOS------------')
 	print('------------HASH TO FIND: ' + hash_rand_password.hex() + '------------')
+	t2 = time.time()
 	searchAndHashCombos(hash_rand_password, random_password)
+	time_spent2 = time.time() - t2
+	print('Average time: ', time_spent2, 'seconds')
 
 	#Task 2: Create and Use a Rainbow Table
 	'''
@@ -276,7 +282,7 @@ def main():
 			print('Random password reduced: ', r)
 			start_chain = reduced
 			password_crakced = starting
-		print('\nThe password is: ', starting)
+		print('\nThe password is: ', password_crakced)
 		
 
 if __name__ == '__main__':
