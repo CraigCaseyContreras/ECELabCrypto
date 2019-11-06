@@ -228,7 +228,7 @@ def main():
 
 	'''
 	print('------------CREATING RAINBOW TABLE------------')
-	rainbow_dict = rainbow_table(password)
+	rainbow_dict = wh(password)
 	print(rainbow_dict)
 	print('length: ', len(rainbow_dict))
 	write_to_csv(rainbow_dict, 'rainbow_table.csv')
