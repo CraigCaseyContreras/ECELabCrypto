@@ -63,10 +63,9 @@ def createDict(password):
 		digest_val = digestSHA256(val.encode())
 		digest_val_hex = digest_val.hex()
 		my_dict[digest_val_hex] = val
-	with open('dictionary.csv', 'w') as f:
-		for key in my_dict.keys():
-			f.write("%s,%s\n"%(key,my_dict[key]))
-	print('<DICTIONARY CREATED>')
+	
+	write_to_csv(my_dict, 'dictionary.csv')
+	return
 
 def searchToFindPassword(fname, random_password):
 	#Reading the dictionary
@@ -77,8 +76,9 @@ def searchToFindPassword(fname, random_password):
 			rows = f'{" ".join(row)}'
 			#Brute force search
 			if random_password in rows:
-				print('<PASSWORD FOUND>')
+				print('<PASSWORD FOUND> \n')
 				break
+	return
 
 def searchAndHashCombos(hash_rand_password, random_password):
 	for entries in foo(random_password):
@@ -87,6 +87,7 @@ def searchAndHashCombos(hash_rand_password, random_password):
 		if digest_val2 == hash_rand_password:
 			print('<HASH FOUND>')
 			break
+	return
 
 def percentage(percent, whole):
 	return (percent * whole) / 100.0
@@ -103,7 +104,8 @@ def reduce(hash_value):
 def rainbow_table(password):
 	combosOfPasswords = list()
 	indices = list()
-	tables = []
+	tables = {}
+	#tables = []
 	for entry in foo(password):
 		vals = ''.join(entry)
 		combosOfPasswords.append(vals)
@@ -114,54 +116,72 @@ def rainbow_table(password):
 	#So there are ten_percent starting points, or ten_percent chains, each of length 10
 	number_of_chains = ten_percent
 	#Make table of index numbers to use for later
-	for i in range(number_of_chains):
+	for i in range(0,number_of_chains):
 		indices.append(i)
 
 	#Choose a random index as a starting point, then remove so that it won't be chosen again
-	for loops in range(number_of_chains):
+	for loops in range(0,number_of_chains):
 		index = random.choice(indices)
 		indices.remove(index)
 		rand = combosOfPasswords[index]
-		print(rand, 'Chain # ', loops+1)
+		print('Chain # ', loops+1)
 
 		#Idea is after picking a random password - in string, to hash it, do base64, reduce and that is password2. Keep on until read password 10.
-		p = rand
-		for k in range(10):
-			print('value of p: ', p)
-			H = digestSHA256(p.encode())
-			print('digested: ',  H)
-			p = reduce(H.hex())
-			print('reduced: ', p)
+		start = rand
+		for k in range(0,10):
+			print('value of p: ', start)
+			H = digestSHA256(start.encode())
+			print('hash: ',  H)
+			start = reduce(H.hex())
+			print('reduced: ', start)
 			print('\n\n')
-		end = p
-		tables.append([rand, end])
-	print(tables)
-
-		#print(52 // 26) #Same as modulo
-	
+		end = start
+		tables[rand] = end
+		#tables.append([rand, end])
+	return tables
 		
+def write_to_csv(my_dict, fname):
+	"""Writes a dict{} to a .csv file"""
+	with open(fname, 'w') as f:
+		for key in my_dict.keys():
+			f.write("%s,%s\n"%(key,my_dict[key]))
+	message = '<RAINBOW TABLE CREATED>\n'
+	print(message)
+	return message
 
+def read_table(fname):
+	"""Read Rainbow Table from csv file"""
+	dict = {}
+	with open(fname, 'r') as csvfile:
+		table = csv.reader(csvfile, delimiter=',', quotechar='|')
+		for row in table:
+			dict[str(row[0])] = str(row[1])
+	return dict
 
+def find_resultant(rainbow, r):
+	#Initialize list of successors
+	print(r)
+	succ = [r]
+	#Fills the list of successors of r
+	for i in range(1,10):
+		succ.append(reduce((digestSHA256(succ[i-1].encode())).hex()))
+	print(succ, len(succ), 'successors')
 
+	#Looks through the dictionary given the input
+	for key, value in rainbow.items():
+		if value in succ:
+			print("Collision: %s -> %s" % (key, value))
+			ss = key
+			for i in range(0, 10):
+				hash_val = digestSHA256(ss.encode())
+				rs = reduce(hash_val.hex())
+				#If rs == r, then key should have been found
+				if rs == r:
+					#Return predecessor
+					return ss, value
+				ss = rs
 
-
-
-
-
-		# 	cipher = digestSHA256(combosOfPasswords[index].encode())
-		# 	combosOfPasswords[index] = cipher
-		# end_point = combosOfPasswords[index]
-			
-
-
-
-
-
-
-	#print(passwords)
-	#return combosOfPasswords
-		
-
+	return 
 
 def main():
 	#d = bytes.fromhex('') - use for going from hex back to bytes
@@ -195,11 +215,6 @@ def main():
 	'''
 	start with chains of length 10 and using 10% of the passwords as starting points.
 
-	So I guess I have to hash all combos using the original password's password space.
-	the reduction function will be a very simple function: 
-	Simply convert the hash value to a base- 64 
-	representation and then take the first five characters as the generated password.
-
 	1. Generate all combinations of passwords and for 10% of the combinations 
 	a. Calculate the chain starting at the chosen password
 	b. Record the final password
@@ -207,12 +222,50 @@ def main():
 	2. Save the file, this is your rainbow table
 
 	'''
-	print(rainbow_table(password))
+	print('------------CREATING RAINBOW TABLE------------')
+	rainbow_dict = rainbow_table(password)
+	print(rainbow_dict)
+	print('length: ', len(rainbow_dict))
+	write_to_csv(rainbow_dict, 'rainbow_table.csv')
 
+	'''
+	Testing the rainbow table.
+	1. Create a random 5-character password
+	2. Find the hash of the password
+	3. Search the table:
+		a. Apply the reduction on the hash
+		b. Search the table to see if any chains end with the resultant value
+		c. If not:
+			i. Hash the new value and then return to step a
+			ii. Repeat until found or you have reached the length of the chain, in which case
+		the password in not in the table
+		d. If found:
+			i. The password you are looking for is the one that produced the hash at the point you started, i.e. the one before the hash
+			ii. To find this you must look at the first password in the chain and recalculate the chain from the start to just before the hash you were looking for.
+			iii. The password before this is the one you are looking for.
+	4. If you do not find the password, then the table is too small, you will have to recalculate the table with more starting passwords.
+	'''
 
+	#Create a random 5-char password
+	random_password2 = randomPasswordUsingSpace(5, password_space)
 
+	#Find the hash of the password
+	hash_rand_password2 = digestSHA256(random_password2.encode())
+
+	#Apply reduction on the hash
+	r = reduce(hash_rand_password2.hex())
+	
+	#Load the table to search through it
+	loaded_rainbow = read_table('rainbow_table.csv')
+
+	#Try to find reduction/resultant value
+	if find_resultant(loaded_rainbow, r) == None:
+		print('Try again. Please recalculate.')
+	else:
+		result, target_value = find_resultant(loaded_rainbow, r)
+		#Now hash the result until you reach the target_value.
+		#The password desired is the one before the hash
 		
-
 
 if __name__ == '__main__':
 	main()
